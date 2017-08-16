@@ -76,7 +76,7 @@ bool PMDUtils::AlmostEqual(double v1, double v2, double nEpsilon)
 }
 
 //----------------------------------------------------------------------------
-bool PMDUtils::EstablishCommunication() {
+bool PMDUtils:: EstablishCommunication() {
 
     char methodStr[] = "PMDUtils::EstablishCommunication: ";  // Debug defn
     bool overallConnectionStatus = true;
@@ -122,7 +122,7 @@ bool PMDUtils::EstablishCommunication() {
 
 //----------------------------------------------------------------------------
 bool PMDUtils::Initialize(const char *fileName, bool connectToControllers, bool configureControllers) {
-	if (PMDUtils::LoadConfiguration(fileName)) 
+	if (PMDUtils::LoadConfiguration(fileName))
 	{
 		if (connectToControllers) 
 		{

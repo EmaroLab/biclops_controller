@@ -1,34 +1,58 @@
-INTRODUCTION
-------------
+# Biclops controller
 
-This package is a fork of the package https://github.com/Yeshasvitvs/Biclops_Kinect_CMT. 
-Please refer to the project homepage for further informations.
+This package is a fork of https://github.com/Yeshasvitvs/Biclops_Kinect_CMT and 
+https://gitlab.com/SofarProject/Biclops. it has been modified to act as a generic
+controller for the Biclops Robotic Camera Positioning Mechanism.
 
+## Installation
 
-ATTENTION
------------
-Please note that the original package doen't compile when following 
-the install instructions. This is due to a inconstistency in the CMakeLists. 
-In our modified package this issue is resolved and should work out of the box.
+Clone the repo:
 
+    git clone git@github.com:EmaroLab/biclops_controller.git
 
-INSTALLATION
------------
-* clone the package to your workspace
-* adjust the path in src/Biclops_node.cpp line 33 char *config_path="your_path/src/Biclops/BiclopsDefault.cfg";
-* make sure that the current user on your linux machine has the rights to use usb: (you could also set udev rules instead checkout here http://ask.xmodulo.com/change-usb-device-permission-linux.html)
-- whoami      ->outputs the username
-- connect the biclops
-- check out which group
-- ls -l /dev/ttyUSB*				-> shoud be sth like root:dialout
-- then add your user to the dialout group
-- sudo usermod -a -G dialout yourusername
-- restart/logout
-- done
+Build it:
 
+`catkin_make`
 
-ROS TOPICS
------------
-subscribes to:
-	/oculus/orientation
+To connect to the Biclops add yourself to the `dialout` group:
 
+- `whoami` (returns your `USERNAME`)
+- Connect the biclops
+- `sudo usermod -a -G dialout USERNAME`
+- Restart
+
+If this does not work, you can try to add an *udev* rule:
+
+    cd YOUR_WS/src/biclopscontroller
+    sudo cp 50-rs485.rules /etc/udev/rules.d/50-rs485.rules
+    sudo udevadm control --reload
+
+## ROS topics
+
+Send commands (Pan/Tilt) to:
+
+`/biclops/tip_orientation`, message type:`biclops_controller::biclops_joint_states`
+
+Read current state (Pan/Tilt) from:
+
+`/biclops/joint_states`, message type:`biclops_controller::biclops_joint_states`
+
+## ROS parameters
+
+Where to load the configuration file from: 
+
+`biclops/config_file_path`, default: `/src/biclops_controller/BiclopsDefault.cfg`
+
+Whether publish a `tf` transform to the Baxter robot head or not:
+
+`biclops/baxter_tf`, default: `true`
+
+## Launching
+
+There is a sample launch file you can launch and modify
+
+    roslaunch biclops_controller biclops.launch
+    
+## Mantainer
+
+[alessio.capitanelli@gmail.com](alessio.capitanelli@gmail.com)

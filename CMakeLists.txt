@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
         rospy
         std_msgs
         message_generation
+        tf
         )
 add_subdirectory(libUtils)
 add_subdirectory(libPMD)
@@ -54,7 +55,7 @@ add_subdirectory(libPMD)
 
 add_message_files(
         FILES
-        biclops_command.msg
+        biclops_joint_states.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -147,7 +148,7 @@ add_executable(biclops_controller_node src/biclops_controller_node.cpp src/biclo
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(biclops_controller_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(biclops_controller_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} biclops_controller_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(biclops_controller_node

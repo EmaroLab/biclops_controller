@@ -233,14 +233,14 @@ bool PortableSerial::Open() {
         tcsetattr(portHandle, TCSAFLUSH, &termIOData);
 
 	// Set the port in 485 mode (this only works on ISee IGEP products).
-        struct serial_rs485 ctrl485;
-        ctrl485.flags = SER_RS485_ENABLED | SER_RS485_RTS_ON_SEND;
-        ctrl485.delay_rts_before_send = 0;
-        ctrl485.delay_rts_after_send = 0;
-        int status = ioctl(portHandle, TIOCSRS485, &ctrl485);
-        if (status != 0) {
-           dbgCout << "Unable to configure port in 485 mode, status " << status << endl;
-        }
+//        struct serial_rs485 ctrl485;
+//        ctrl485.flags = SER_RS485_ENABLED | SER_RS485_RTS_ON_SEND;
+//        ctrl485.delay_rts_before_send = 0;
+//        ctrl485.delay_rts_after_send = 0;
+//        int status = ioctl(portHandle, TIOCSRS485, &ctrl485);
+//        if (status != 0) {
+//           dbgCout << "Unable to configure port in 485 mode, status " << status << endl;
+//        }
 
 
 #endif

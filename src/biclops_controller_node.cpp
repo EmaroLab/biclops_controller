@@ -5,7 +5,7 @@
 #include <geometry_msgs/Twist.h>
 #include <tf/transform_broadcaster.h>
 #include <Biclops.h>
-#include <biclops_controller/biclops_command.h>
+#include <biclops_controller/biclops_joint_states.h>
 
 using namespace std;
 using namespace ros;
@@ -23,43 +23,28 @@ PMDAxisControl *tilt_axis = NULL;
 // biclops interface
 Biclops biclops;
 
-double pan_pos_value  = 0;
-double tilt_pos_value = 0;
-double pan_joint_pos  = 0;
-double tilt_joint_pos = 0;
-
+biclops_controller::biclops_joint_states joint_state;
 PMDAxisControl::Profile panProfile,tiltProfile;
 
-// TODO get rid of quaternions, switch to pan/tilt (kinect driver will wait till pan/tilt is right)
-// TODO publish current state
-// TODO initialize neutral to baxter
 
+void set_tip_orientation(double pan, double tilt){
+    double rad_pan = -((pan + 45) * 2 * PI) / 360; // accounts for reference offset and clockwise rotation
+    double rad_tilt = (tilt * 2 * PI) / 360;
 
-bool tuck_biclops(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res){
+    double panrev  = (rad_pan  / (2 * PI));
+    double tiltrev = (rad_tilt / (2 * PI));
 
-    ROS_INFO("[biclops_controller]: tucking the biclops.");
-    biclops.HomeAxes(axisMask,true);
-
-    pan_pos_value  = 0;
-    tilt_pos_value = 0;
-    pan_joint_pos  = 0;
-    tilt_joint_pos = 0;
-
-    return true;
-}
-
-
-void tip_orientation_callback(biclops_controller::biclops_command msg){
-    //TODO add offset
-
-    double panrev  = (msg.pan / (2 * PI));
-    double tiltrev = (msg.tilt / (2 * PI));
-
-    ROS_INFO("[biclops_controller]: PAN: %f, TILT: %f", panrev, tiltrev);
+    ROS_INFO("[biclops_controller]: PAN: %f, TILT: %f", joint_state.pan, joint_state.tilt);
 
     panProfile.pos  = panrev;
     tiltProfile.pos = tiltrev;
 }
+
+
+void tip_orientation_callback(biclops_controller::biclops_joint_states msg){
+    set_tip_orientation(msg.pan, msg.tilt);
+}
+
 
 int main (int argc, char *argv[]) {
 
@@ -69,16 +54,25 @@ int main (int argc, char *argv[]) {
 
     ros::Subscriber key_sub;
     ros::Subscriber joint_commands_sub;
-
-    sensor_msgs::JointState joint_state;
+    ros::Publisher joint_states_pub;
 
     std::string config_path;
+    bool publish_frame_to_baxter_head;
     nh.param<std::string>("biclops/config_file_path", config_path, "/src/biclops_controller/BiclopsDefault.cfg");
+    nh.param<bool>("biclops/baxter_tf", publish_frame_to_baxter_head, false);
 
     ROS_INFO("[biclops_controller]: config_file_path param set to '%s'. Loading.", config_path.c_str());
 
-    //Subscribing
-    joint_commands_sub = nh.subscribe<biclops_controller::biclops_command>("/biclops/tip_orientation", 1, tip_orientation_callback);
+    //Initializing connections
+    joint_commands_sub = nh.subscribe<biclops_controller::biclops_joint_states>("/biclops/tip_orientation", 1, tip_orientation_callback);
+    joint_states_pub = nh.advertise<biclops_controller::biclops_joint_states>("/biclops/joint_states", 1);
+    joint_state.pan  = 0;
+    joint_state.tilt = 0;
+
+    static tf::TransformBroadcaster br;
+    tf::Transform transform;
+    tf::Quaternion frame_orientation;
+    transform.setOrigin( tf::Vector3(0.0, 0.0, 0.3) ); // TODO identify z shift, possibly also x and y
 
     //Initializing
     if (!biclops.Initialize(config_path.c_str()))
@@ -100,6 +94,9 @@ int main (int argc, char *argv[]) {
     pan_axis->GetProfile(panProfile);
     tilt_axis->GetProfile(tiltProfile);
 
+    PMDint32 tmp;
+
+    set_tip_orientation(0.0, 0.0);
 
     while(ros::ok() ){
 
@@ -108,9 +105,20 @@ int main (int argc, char *argv[]) {
         tilt_axis->SetProfile(tiltProfile);
         tilt_axis->Move(false);
 
+        pan_axis->GetPosition(tmp);
+        joint_state.pan= -((double)tmp / 33 + 45); // accounts for reference offset and clockwise rotation
+        tilt_axis->GetPosition(tmp);
+        joint_state.tilt = (double)tmp / 33;
+        joint_states_pub.publish(joint_state);
+
+        if (publish_frame_to_baxter_head) {
+            frame_orientation.setRPY(joint_state.tilt * PI / 180, 0.0, joint_state.pan * PI / 180);
+            transform.setRotation(frame_orientation);
+            br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "head", "biclops"));
+        }
+
         spinOnce();
         loop_rate.sleep();
-
     }
 
     pan_axis->DisableAmp();
