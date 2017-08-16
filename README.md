@@ -27,6 +27,13 @@ If this does not work, you can try to add an *udev* rule:
     sudo cp 50-rs485.rules /etc/udev/rules.d/50-rs485.rules
     sudo udevadm control --reload
 
+## Launching
+
+There is a sample launch file in the launch dolder you can launch and modify
+
+    roslaunch biclops_controller biclops.launch
+
+
 ## ROS topics
 
 Send commands (Pan/Tilt) to:
@@ -37,6 +44,8 @@ Read current state (Pan/Tilt) from:
 
 `/biclops/joint_states`, message type:`biclops_controller::biclops_joint_states`
 
+Angles are in degrees.
+
 ## ROS parameters
 
 Where to load the configuration file from: 
@@ -46,12 +55,6 @@ Where to load the configuration file from:
 Whether publish a `tf` transform to the Baxter robot head or not:
 
 `biclops/baxter_tf`, default: `true`
-
-## Launching
-
-There is a sample launch file you can launch and modify
-
-    roslaunch biclops_controller biclops.launch
     
 ## Mantainer
 
