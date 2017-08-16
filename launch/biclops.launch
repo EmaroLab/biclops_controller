@@ -1,0 +1,4 @@
+<launch>
+      <param name="biclops/config_file_path" value="/home/alessio/catkin_ws/src/paco/biclops_controller/BiclopsDefault.cfg" />
+      <node  name="biclops_controller" pkg="biclops_controller" type="biclops_controller_node" />
+</launch>
