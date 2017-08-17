@@ -131,10 +131,6 @@ include_directories(
 # add_library(biclops
 #   src/${PROJECT_NAME}/biclops.cpp
 # )
-add_library(biclops
-        src/biclops_controller_node.cpp src/biclopslib.cpp
-        )
-
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -143,7 +139,7 @@ add_library(biclops
 
 ## Declare a C++ executable
 # add_executable(biclops_controller_node src/biclops_controller_node.cpp)
-add_executable(biclops_controller_node src/biclops_controller_node.cpp src/biclopslib.cpp)
+add_executable(biclops_controller_node src/biclops_controller_node.cpp)
 
 
 ## Add cmake target dependencies of the executable

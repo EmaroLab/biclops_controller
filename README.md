@@ -46,6 +46,10 @@ Read current state (Pan/Tilt) from:
 
 Angles are in degrees.
 
+## TF frames
+
+`biclops`, only if the relative parameter is set and exists a root frame `head`
+
 ## ROS parameters
 
 Where to load the configuration file from: 

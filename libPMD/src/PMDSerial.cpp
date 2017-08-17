@@ -524,11 +524,11 @@ PMDuint16 PMDSerial::ReSync() {
     bool gotResponse = false;
     unsigned char ch = 0;
 
-    ifDbgCout << "Pinging comm port                         ";
+    ifDbgCout << "Pinging comm port-> ";
 	for( i=1; i<=maxSend && status == PMD_ERR_OK && !gotResponse; i++ ) {
 
 		// write a null character
-        ifDbg cout << " 00";
+        ifDbg cout << " 00...";
         if (!comm->Write(&ch, 1)) {
             status = PMD_ERR_CommPortWrite;
         } else {
@@ -553,7 +553,7 @@ PMDuint16 PMDSerial::ReSync() {
 
 
     } else {
-        ifDbg cout << " no response\n";
+        ifDbg cout << " No response!\n";
         status = PMD_ERR_CommTimeoutError;
     }
 

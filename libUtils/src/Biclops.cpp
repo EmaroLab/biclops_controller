@@ -5,13 +5,14 @@
 #include <math.h>       // for sqrt()
 #include <iostream>
 #include <fstream>      // for ifstream
-using namespace std;
 #include <string.h>  // for strcpy, strcmp
 
 #include "PMDUtils.h"   // access to file parsing
 #include "PMDCollections.h"
 #include "PMDGet.h"
 #include "Biclops.h"    // class being implemented here
+
+using namespace std;
 
 //----------------------------------------------------------------------------
 Biclops::Biclops() {
@@ -55,10 +56,10 @@ bool Biclops::Initialize(const char *fileName) {
         int i;
         for (i=Pan;i<=Verge;i++) GetAxis(i);
 
-        // Determine if all the axes are on the same controller. 
+        // Determine if all the axes are on the same controller.
         // This result is used by the Move() command to know whether a MoveMultiple
         // is possible.
-        if (hasBeenInitialized) { 
+        if (hasBeenInitialized) {
             if (axes[Pan]==NULL) {
                 std::cerr << "ERROR! Pan axis not defined\n";
                 return false;
@@ -114,7 +115,7 @@ bool Biclops::Move(int axisMask, int32_t waitPeriod) {
 
         // To utilize the MultiUpdate command, we essentially have to replicate
         // the PMDAxisControl::Move() method logic here for making sure the
-        // axis is in the correct state for moving. 
+        // axis is in the correct state for moving.
         for (axis = PMDAxis1; axis <= PMDAxis4; axis++) {
             if (axisMask & 1<<axis) {
                 axes[axis]->PreMove();
@@ -137,7 +138,7 @@ bool Biclops::Move(int axisMask, int32_t waitPeriod) {
         // Since axes are on more than one controller, just issue the move
         // command on each axis with no wait time and let the follow-on loop
         // do the actual waiting.
-        
+
         // But first, the event status must be cleared if this multi-axis move
         // wants to wait for motion completion.
         if (waitPeriod > 0)
@@ -146,7 +147,7 @@ bool Biclops::Move(int axisMask, int32_t waitPeriod) {
                     axes[axis]->ResetEventStatus(PMDAxisControl::MoveEventMask);
 
         // Okay, now we can command the moves.
-        for (axis = PMDAxis1; axis <= PMDAxis4; axis++) 
+        for (axis = PMDAxis1; axis <= PMDAxis4; axis++)
             if (axisMask & 1<<axis) axes[axis]->Move(false);
 
     }

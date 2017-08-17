@@ -10,8 +10,6 @@ set(LIBRARY_OUTPUT_PATH ${libPMD_SOURCE_DIR}/lib)
 
 include_directories(include ${biclops_controller_SOURCE_DIR}/libUtils/include)
 
-
-
 file(GLOB pmd_SOURCES RELATIVE ${libPMD_SOURCE_DIR} src/*.cpp)
 
 ADD_DEFINITIONS(-Wall)

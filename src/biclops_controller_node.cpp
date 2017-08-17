@@ -4,8 +4,8 @@
 #include <std_msgs/Int16.h>
 #include <geometry_msgs/Twist.h>
 #include <tf/transform_broadcaster.h>
-#include <Biclops.h>
 #include <biclops_controller/biclops_joint_states.h>
+#include <Biclops.h>
 
 using namespace std;
 using namespace ros;
@@ -72,16 +72,17 @@ int main (int argc, char *argv[]) {
     static tf::TransformBroadcaster br;
     tf::Transform transform;
     tf::Quaternion frame_orientation;
-    transform.setOrigin( tf::Vector3(0.0, 0.0, 0.3) ); // TODO identify z shift, possibly also x and y
+    transform.setOrigin( tf::Vector3(0.0, 0.0, 0.3)); // TODO identify z shift, possibly also x and y
 
     //Initializing
-    if (!biclops.Initialize(config_path.c_str()))
+    while (!biclops.Initialize(config_path.c_str()))
     {
-        ROS_ERROR("[biclops_controller]: failed to open biclops communication. Terminating.");
-        return 0;
+        ROS_ERROR("[biclops_controller]: failed to open biclops communication. Retrying in 3s.");
+        ros::Duration(3).sleep();
+        if (!ros::ok()) return 0;
     }
-    else
-        ROS_INFO("[biclops_controller]: communication open. Listening on /biclops/joint_commands." );
+
+    ROS_INFO("[biclops_controller]: communication open. Listening on /biclops/tip_orientation." );
 
     //tuck_biclops sequence at the beginning of the application
     biclops.HomeAxes(axisMask,true);
